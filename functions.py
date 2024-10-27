@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 def create_model(unit):
-    # Dados do problema
     if unit == "centro":
         num_clients = 6
         num_machines = 6
-        M = 100000  # Valor grande para a restrição Big M
+        M = 100000 
         training_data = {
             1: [(2, 1), (0, 3), (1, 6), (3, 7), (5, 3), (4, 6)],
             2: [(1, 8), (2, 5), (4, 10), (5, 10), (0, 10), (3, 4)],
@@ -44,24 +43,19 @@ def create_model(unit):
             10: [(4, 77), (3, 79), (2, 43), (1, 75), (0, 96)]
         }
 
-    # Inicializa o modelo de otimização
     model = LpProblem(f"{unit.capitalize()}_Gym_Scheduling", LpMinimize)
 
-    # Variáveis de decisão
     C = LpVariable.dicts("C", [(i, k) for i in range(1, num_clients + 1) for k in range(num_machines)], lowBound=0, cat=LpContinuous)
     x = LpVariable.dicts("x", [(i, j, m) for i in range(1, num_clients + 1) for j in range(1, num_clients + 1) if i != j for m in range(num_machines)], cat=LpBinary)
 
-    # Função Objetivo: minimizar o tempo total dos clientes
     model += lpSum([C[(i, num_machines - 1)] for i in range(1, num_clients + 1)])
 
-    # Restrições de sequenciamento para cada cliente
     for i in range(1, num_clients + 1):
         for k in range(len(training_data[i]) - 1):
             current_machine, current_time = training_data[i][k]
             next_machine, next_time = training_data[i][k + 1]
             model += C[(i, next_machine)] >= C[(i, current_machine)] + current_time, f"Sequencing_{unit}_{i}_{k}"
 
-    # Restrições de conflito de uso dos aparelhos
     for m in range(num_machines):
         for i in range(1, num_clients + 1):
             for j in range(1, num_clients + 1):
@@ -72,7 +66,6 @@ def create_model(unit):
                         model += C[(j, m)] >= C[(i, m)] + machine_time_i - M * (1 - x[(i, j, m)])
                         model += C[(i, m)] >= C[(j, m)] + machine_time_j - M * x[(i, j, m)]
 
-    # Restrição de precedência para binárias
     for m in range(num_machines):
         for i in range(1, num_clients + 1):
             for j in range(i + 1, num_clients + 1):
@@ -100,16 +93,15 @@ def print_schedule(schedule):
         print()
 
 def plot_schedule(schedule, filename, unit):
-    # Define as cores para os aparelhos; inclui cor adicional para a Unidade Centro
     machine_colors = {
-        0: "#66c2a5",  # Aparelho 0
-        1: "#fc8d62",  # Aparelho 1
-        2: "#8da0cb",  # Aparelho 2
-        3: "#e78ac3",  # Aparelho 3
-        4: "#ffd92f",  # Aparelho 4
+        0: "#66c2a5",
+        1: "#fc8d62",
+        2: "#8da0cb",
+        3: "#e78ac3",
+        4: "#ffd92f",
     }
     if unit == "centro":
-        machine_colors[5] = "#b3b3cc"  # Aparelho 5 (Unidade Centro)
+        machine_colors[5] = "#b3b3cc"
 
     fig, ax = plt.subplots(figsize=(14, 9))
     ax.set_xlabel("Tempo (minutos)")
