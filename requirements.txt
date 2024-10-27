@@ -1,2 +1,2 @@
-PuLP==2.6.0       # Biblioteca para modelagem e solução de problemas de otimização linear e inteira em Python.
-matplotlib==3.4.3 # Biblioteca para criação de gráficos 2D em Python, útil para visualizações de dados e plotagem de cronogramas.
+PuLP==2.9.0       # Biblioteca para modelagem e solução de problemas de otimização linear e inteira em Python.
+matplotlib==3.9.2 # Biblioteca para criação de gráficos 2D em Python, útil para visualizações de dados e plotagem de cronogramas.
